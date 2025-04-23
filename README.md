@@ -47,22 +47,22 @@ Once the server is running, you can interact with it using any HTTP client:
 
 ```bash
 # Get the root endpoint
-curl http://localhost:4221/
+curl -i http://localhost:4221/
 
 # Get the hello endpoint
-curl http://localhost:4221/hello
+curl -i http://localhost:4221/hello
 
 # Echo a message
-curl http://localhost:4221/echo/hello-world
+curl -i http://localhost:4221/echo/hello-world
 
 # Get your user agent
-curl http://localhost:4221/user-agent
+curl -i http://localhost:4221/user-agent
 
 # Get a file
-curl http://localhost:4221/files/example.txt
+curl -i http://localhost:4221/files/example.txt
 
 # Create a file
-curl -X POST -d "file contents" http://localhost:4221/files/example.txt
+curl -i -X POST -d "file contents" http://localhost:4221/files/example.txt
 ```
 
 ## Project Structure
