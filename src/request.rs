@@ -1,15 +1,40 @@
+//! request.rs
+//!
+//! This file defines the `Request` struct and its methods.
+//! It is responsible for parsing incoming HTTP requests into structured data.
+
 use crate::utils::{HTTPMethod, HTTPVersion, RequestParseError};
 
+/// `Request` struct represents an HTTP request.
+///
+/// It contains the HTTP method, target, HTTP version, headers, and body.
 #[derive(Debug)]
 pub struct Request {
+    /// The HTTP method (GET, POST, etc.)
     pub method: HTTPMethod,
+
+    /// The requested path or resource
     pub target: String,
+
+    /// The HTTP version (HTTP/1.1, HTTP/2, etc.)
     pub http_version: HTTPVersion,
+
+    /// The headers of the request
     pub headers: Vec<(String, String)>,
+
+    /// The body of the request
     pub body: String,
 }
 
 impl Request{
+    /// Create a new `Request` object from a string.
+    ///
+    /// Reads and parse the incoming HTTP request string.
+    /// Checks the validity of the request line, headers, and body.
+    ///
+    /// # Arguments
+    ///
+    /// * `request` - The incoming HTTP request string.
     pub fn from_str(request: String) -> Result<Self, RequestParseError>{
         // Separate the blocks for the request line, headers and body
         let blocks = request.split("\r\n").collect::<Vec<&str>>();
@@ -19,6 +44,7 @@ impl Request{
             return Err(RequestParseError::InvalidRequestLine)
         }
 
+        // Get the request line
         let request_line = blocks[0].split_whitespace().collect::<Vec<&str>>();
 
         if request_line.len() != 3 {

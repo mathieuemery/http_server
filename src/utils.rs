@@ -1,6 +1,9 @@
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 
+/// Stores the HTTP response codes and their meanings.
+/// 
+/// Static variable that is initialized once and can be used throughout the program.
 pub static HTTP_RESPONSE_CODES : Lazy<HashMap<u16, String>> = Lazy::new(|| {
     let mut m = HashMap::new();
     m.insert(200, "OK".to_string());
@@ -10,10 +13,12 @@ pub static HTTP_RESPONSE_CODES : Lazy<HashMap<u16, String>> = Lazy::new(|| {
     m
 });
 
+/// Stores the some HTTP compression algorithms (not all implemented).
 pub static COMPRESSION_ALGORITHMS : Lazy<Vec<&str>> = Lazy::new(|| {
     vec!["gzip", "deflate", "br"]
 });
 
+/// Error types for parsing HTTP requests.
 #[derive(Debug)]
 pub enum RequestParseError {
     InvalidRequestLine,
@@ -22,6 +27,7 @@ pub enum RequestParseError {
     InvalidHeader,
 }
 
+/// Most common HTTP methods.
 #[derive(Debug, PartialEq)]
 pub enum HTTPMethod {
     GET,
@@ -31,6 +37,11 @@ pub enum HTTPMethod {
 }
 
 impl HTTPMethod {
+    /// Transforms a string into an `HTTPMethod`.
+    ///
+    /// # Arguments
+    ///
+    /// * `method` - The method of the request (e.g., "GET", "POST").
     pub fn from_str(method: &str) -> Option<HTTPMethod> {
         match method {
             "GET" => Some(HTTPMethod::GET),
@@ -42,6 +53,7 @@ impl HTTPMethod {
     }
 }
 
+/// Existing HTTP versions.
 #[derive(Debug)]
 pub enum HTTPVersion{
     Http1_0,
@@ -51,6 +63,11 @@ pub enum HTTPVersion{
 }
 
 impl HTTPVersion {
+    /// Transforms a string into an `HTTPVersion`.
+    ///
+    /// # Arguments
+    ///
+    /// * `version` - HTTP version of the request (e.g., "HTTP/1.0", "HTTP/1.1").
     pub fn from_str(version: &str) -> Option<HTTPVersion> {
         match version {
             "HTTP/1.0" => Some(HTTPVersion::Http1_0),
@@ -61,6 +78,7 @@ impl HTTPVersion {
         }
     }
 
+    /// Transforms a `HTTPVersion`` into an String.
     pub fn to_str(&self) -> &str {
         match self {
             HTTPVersion::Http1_0 => "HTTP/1.0",
