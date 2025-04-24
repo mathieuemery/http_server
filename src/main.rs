@@ -17,6 +17,7 @@ mod utils;
 use std::net::TcpListener;
 use std::net::TcpStream;
 use std::io::{Read, Write};
+use threadpool::ThreadPool;
 
 use crate::request::Request;
 use crate::response::Response;
@@ -24,14 +25,25 @@ use crate::response::Response;
 fn main() {
     println!("Server started successfully");
 
+    // Max number of threads
+    let pool = ThreadPool::new(10);
+
     // Create a TCP listener on port 4221
-    let listener = TcpListener::bind("127.0.0.1:4221").unwrap();
+    let listener = match TcpListener::bind("127.0.0.1:4221"){
+        Ok(l) => l,
+        Err(e) => {
+            println!("Error binding to port: {}", e);
+            return;
+        }
+    };
     
     // Accept incoming connections and check for errors
     for stream in listener.incoming() {
         match stream {
             Ok(stream) => {
-                std::thread::spawn(|| handler(stream));
+                pool.execute(move || {
+                    handler(stream);
+                });
             }                            
             Err(e) => {
                 println!("error: {}", e);
@@ -54,7 +66,14 @@ fn handler (mut stream: TcpStream){
     loop{
         // Read the incoming request
         let mut buffer = [0; 1024];
-        let bytes_read = stream.read(&mut buffer).unwrap();
+        let bytes_read = match stream.read(&mut buffer) {
+            Ok(0) => return,  // Connection closed
+            Ok(b) => b,
+            Err(e) => {
+                println!("Error reading from stream: {:?}", e);
+                return;
+            }
+        };
     
         if bytes_read == 0 {
             return;
@@ -75,8 +94,15 @@ fn handler (mut stream: TcpStream){
         let response : Response = Response::parse_request(request);
     
         // Write the response back to the stream
-        stream.write(&response.as_bytes()).unwrap();
-        stream.flush().unwrap();
+        if let Err(e) = stream.write(&response.as_bytes()){
+            println!("Error writing to stream: {:?}", e);
+            return;
+        }
+
+        if let Err(e) = stream.flush(){
+            println!("Error flushing stream: {:?}", e);
+            return;
+        }
 
         // Check if the "Connection: close" header is present
         // If it is, close the connection

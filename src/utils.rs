@@ -8,6 +8,7 @@ pub static HTTP_RESPONSE_CODES : Lazy<HashMap<u16, String>> = Lazy::new(|| {
     let mut m = HashMap::new();
     m.insert(200, "OK".to_string());
     m.insert(201, "Created".to_string());
+    m.insert(400, "Bad request".to_string());
     m.insert(404, "Not Found".to_string());
     m.insert(500, "Internal Server Error".to_string());
     m

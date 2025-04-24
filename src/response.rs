@@ -65,7 +65,17 @@ impl Response{
                             if encoding == "gzip" {
                                 let mut encoder = flate2::write::GzEncoder::new(Vec::new(), Compression::default());
                                 encoder.write_all(&raw_body).unwrap();
-                                raw_body = encoder.finish().unwrap();
+                                raw_body = match encoder.finish(){
+                                    Ok(v) => v,
+                                    Err(_) => {
+                                        return Self {
+                                            http_version,
+                                            status_code: 500,
+                                            headers: vec![],
+                                            body: None,
+                                        }
+                                    }
+                                };
                                 // Compute the new content length
                                 content_length = raw_body.len().to_string();
                                 break;
@@ -80,7 +90,11 @@ impl Response{
                 }
 
                 // Add the other headers
-                headers.push(("Content-Type".to_string(), content_type.unwrap()));
+                match content_type {
+                    Some(ct) => headers.push(("Content-Type".to_string(), ct)),
+                    None => headers.push(("Content-Type".to_string(), "text/plain".to_string())),
+                };
+
                 headers.push(("Content-Length".to_string(), content_length));
 
                 Self {
@@ -164,7 +178,16 @@ impl Response{
             .find(|(k, _)| k == "User-Agent")
             .map(|(_, v)| v.clone());
     
-            return Response::new(request, Some("text/plain".to_string()), 200, Some(user_agent.unwrap().clone()));
+            match user_agent {
+                Some(ref ua) => {
+                    // If the User-Agent header is present, return it
+                    return Response::new(request, Some("text/plain".to_string()), 200, Some(ua.clone()));
+                }
+                None => {
+                    // If the User-Agent header is not present, return a 400 Bad Request response
+                    return Response::new(request, None, 400, None);
+                }
+            };
         }
         // For an invalid target, return a 404 Not Found response
         else if request.target != "/" {

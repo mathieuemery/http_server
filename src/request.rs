@@ -58,7 +58,13 @@ impl Request{
             return Err(RequestParseError::InvalidMethod)
         }
 
-        let method = method.unwrap();
+        let method = match method{
+            Some(m) => m,
+            None => {
+                println!("Invalid method");
+                return Err(RequestParseError::InvalidMethod)
+            }
+        };
 
         // Get the target
         let target = request_line[1].to_string();
@@ -73,7 +79,13 @@ impl Request{
         if http_version.is_none() {
             return Err(RequestParseError::InvalidVersion)
         }
-        let http_version = http_version.unwrap();
+        let http_version = match http_version {
+            Some(v) => v,
+            None => {
+                println!("Invalid version");
+                return Err(RequestParseError::InvalidVersion)
+            }
+        };
 
         // Get the headers and body
         let mut headers = Vec::new();
