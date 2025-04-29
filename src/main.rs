@@ -21,15 +21,24 @@ use threadpool::ThreadPool;
 
 use crate::request::Request;
 use crate::response::Response;
+use crate::utils::Args;
 
 fn main() {
     println!("Server started successfully");
 
+    let srv_params = match Args::parse_params(){
+        Ok(srv) => srv,
+        Err(e) => {
+            println!("Error parsing arguments: {}", e);
+            return;
+        }
+    };
+
     // Max number of threads
-    let pool = ThreadPool::new(10);
+    let pool = ThreadPool::new(srv_params.nb_threads);
 
     // Create a TCP listener on port 4221
-    let listener = match TcpListener::bind("127.0.0.1:4221"){
+    let listener = match TcpListener::bind(srv_params.get_address()){
         Ok(l) => l,
         Err(e) => {
             println!("Error binding to port: {}", e);

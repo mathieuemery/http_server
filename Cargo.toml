@@ -1,14 +1,17 @@
 [package]
-name = "codecrafters-http-server"
+name = "http-server"
 version = "0.1.0"
-authors = ["Codecrafters <hello@codecrafters.io>"]
+authors = ["Mathieu Emery"]
 edition = "2021"
 rust-version = "1.80"
 
 [dependencies]
 anyhow = "1.0.68"                                # error handling
 bytes = "1.3.0"                                  # helps manage buffers
+clap = { version = "4.5.27", features = ["derive"] }
 flate2 = "1.1.1"
+num_cpus = "1.16.0"
 once_cell = "1.21.3"
+regex = "1.11.1"
 thiserror = "1.0.38"                             # error handling
 threadpool = "1.8.1"
