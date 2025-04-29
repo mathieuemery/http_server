@@ -1,7 +1,5 @@
 # RustHTTP - A Lightweight HTTP Server in Rust
 
-A lightweight multithreaded HTTP server written in Rust.
-
 ## Features
 
 - **Multithreaded**: Uses a thread pool to handle concurrent connections
